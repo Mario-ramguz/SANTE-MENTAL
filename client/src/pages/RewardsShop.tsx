@@ -5,14 +5,57 @@ import { Button } from "@/components/ui/button";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
+
 import { useRewards, AVATAR_EMOJIS } from "@/contexts/RewardsContext";
+
+// Translate reward name and description based on language
+function translateReward(name: string, description: string | null | undefined, language: string) {
+  const n = name.toLowerCase();
+  const lang = language as "fr" | "es" | "en";
+  const map: Record<string, Record<"fr" | "es" | "en", { name: string; description: string }>> = {
+    nocturne: {
+      fr: { name: "Theme Nocturne Premium", description: "Déverrouille un thème nocturne exclusif avec dégradés personnalisés" },
+      es: { name: "Tema Nocturno Premium", description: "Desbloquea un tema nocturno exclusivo con degradados personalizados" },
+      en: { name: "Premium Nocturnal Theme", description: "Unlock an exclusive dark theme with custom gradients" },
+    },
+    badge: {
+      fr: { name: "Médaille Spéciale", description: "Obtiens une médaille exclusive dans ton profil" },
+      es: { name: "Medalla Especial", description: "Obtén una medalla exclusiva en tu perfil" },
+      en: { name: "Special Badge", description: "Get an exclusive badge on your profile" },
+    },
+    meditation: {
+      fr: { name: "Méditation Guidée Premium", description: "Accès à 10 méditations guidées supplémentaires" },
+      es: { name: "Meditación Guiada Premium", description: "Acceso a 10 meditaciones guiadas adicionales" },
+      en: { name: "Premium Guided Meditation", description: "Access to 10 additional guided meditations" },
+    },
+    rapport: {
+      fr: { name: "Rapport Mensuel Gratuit", description: "Télécharge un rapport détaillé de tes progrès" },
+      es: { name: "Reporte Mensual Gratis", description: "Descarga un reporte detallado de tu progreso" },
+      en: { name: "Free Monthly Report", description: "Download a detailed report of your progress" },
+    },
+    avatar: {
+      fr: { name: "Avatar Personnalisé", description: "Personnalise ton avatar avec des options exclusives" },
+      es: { name: "Avatar Personalizado", description: "Personaliza tu avatar con opciones exclusivas" },
+      en: { name: "Personalized Avatar", description: "Customize your avatar with exclusive options" },
+    },
+    boost: {
+      fr: { name: "Boost de Racha", description: "Augmente ta racha de 7 jours" },
+      es: { name: "Boost de Racha", description: "Aumenta tu racha en 7 días" },
+      en: { name: "Streak Boost", description: "Increase your streak by 7 days" },
+    },
+  };
+  for (const [key, translations] of Object.entries(map)) {
+    if (n.includes(key)) return translations[lang];
+  }
+  return { name, description: description || "" };
+}
 import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 
 // ─── Avatar Picker Modal ───────────────────────────────────────────────────────
 function AvatarPickerModal({ onClose }: { onClose: () => void }) {
   const { profileEmoji, setProfileEmoji } = useRewards();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [selected, setSelected] = useState(profileEmoji);
 
   const handleSave = () => {
@@ -168,7 +211,7 @@ function ThemePreviewModal({ onClose }: { onClose: () => void }) {
 
 // ─── Main Component ─────────────────────────────────────────────────────────────
 export default function RewardsShop() {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { hasReward, refetch } = useRewards();
   const [, navigate] = useLocation();
   const utils = trpc.useUtils();
@@ -292,6 +335,7 @@ export default function RewardsShop() {
             ) : rewards && rewards.length > 0 ? (
               rewards.map((reward, index) => {
                 const redeemed = isRedeemed(reward.id);
+                const translated = translateReward(reward.name, reward.description, language);
                 const canAfford = (stats?.totalPoints || 0) >= reward.pointsCost;
                 const isBoost = reward.name.toLowerCase().includes("boost") || reward.name.toLowerCase().includes("racha");
 
@@ -312,7 +356,7 @@ export default function RewardsShop() {
                         <div className="flex items-center gap-2 md:gap-3 min-w-0">
                           <div className="text-3xl md:text-4xl flex-shrink-0">{reward.icon}</div>
                           <div className="min-w-0">
-                            <h3 className="font-bold text-base md:text-lg text-foreground truncate">{reward.name}</h3>
+                            <h3 className="font-bold text-base md:text-lg text-foreground truncate">{translated.name}</h3>
                             <p className="text-xs md:text-sm text-muted-foreground capitalize">{reward.category}</p>
                           </div>
                         </div>
@@ -320,9 +364,7 @@ export default function RewardsShop() {
                       </div>
 
                       {/* Description */}
-                      {reward.description && (
-                        <p className="text-xs md:text-sm text-muted-foreground mb-4 line-clamp-3">{reward.description}</p>
-                      )}
+                      <p className="text-xs md:text-sm text-muted-foreground mb-4 line-clamp-3">{translated.description}</p>
 
                       {/* Cost */}
                       <div className="mb-4 p-2 md:p-3 bg-purple-50 dark:bg-purple-950/20 rounded-lg border border-purple-200 dark:border-purple-800">

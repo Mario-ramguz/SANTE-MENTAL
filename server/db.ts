@@ -1204,8 +1204,9 @@ export async function runAutoMigrate() {
       id INT AUTO_INCREMENT PRIMARY KEY,
       userId INT NOT NULL UNIQUE,
       totalPoints INT DEFAULT 0,
-      weeklyPoints INT DEFAULT 0,
-      totalMoodEntries INT DEFAULT 0,
+      globalRank INT DEFAULT NULL,
+      totalAchievements INT DEFAULT 0,
+      completedChallenges INT DEFAULT 0,
       totalJournalEntries INT DEFAULT 0,
       totalBreathingExercises INT DEFAULT 0,
       createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
@@ -1231,6 +1232,21 @@ export async function runAutoMigrate() {
     )`);
 
     console.log("[DB] Auto-migration complete ✓");
+    // Seed challenges if none exist
+    try {
+      const existing = await database.select().from(weeklyChallenges).limit(1);
+      if (existing.length === 0) {
+        const now = new Date();
+        await database.insert(weeklyChallenges).values([
+          { name: "7 jours de racha", description: "Completa tu check-in de humor durante 7 días consecutivos", objective: "7 jours de racha", icon: "🔥", rewardPoints: 100, weekStart: now, isActive: 1 },
+          { name: "Écrivain Dévoué", description: "Escribe 5 entradas en tu diario personal", objective: "5 entradas", icon: "✍️", rewardPoints: 75, weekStart: now, isActive: 1 },
+          { name: "Maître Respirateur", description: "Completa 7 ejercicios de respiración", objective: "7 ejercicios", icon: "🧘", rewardPoints: 80, weekStart: now, isActive: 1 },
+          { name: "Bavard IA", description: "Ten 5 conversaciones con el asistente IA", objective: "5 conversaciones", icon: "💬", rewardPoints: 60, weekStart: now, isActive: 1 },
+          { name: "30 jours de racha", description: "Mantén una racha de 30 días consecutivos", objective: "30 jours de racha", icon: "⭐", rewardPoints: 300, weekStart: now, isActive: 1 },
+        ]);
+        console.log("[DB] Weekly challenges seeded ✓");
+      }
+    } catch(e) { console.warn("[DB] Challenge seed skipped:", e); }
   } catch (err) {
     console.error("[DB] Migration error:", err);
   }
