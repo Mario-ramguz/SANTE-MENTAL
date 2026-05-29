@@ -5,10 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { trpc } from "@/lib/trpc";
 import { Heart, Brain, Wind, BarChart3, MessageCircle, Zap, Loader2, Eye, EyeOff } from "lucide-react";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { useLocation } from "wouter";
 import { toast } from "sonner";
 
 export default function Home() {
+  const { language } = useLanguage();
   const { isAuthenticated } = useAuth();
   const [, navigate] = useLocation();
   const [mode, setMode] = useState<"landing" | "login" | "register">("landing");
@@ -59,7 +61,7 @@ export default function Home() {
             </div>
             <h1 className="text-3xl font-bold text-foreground">Sérénité</h1>
             <p className="text-muted-foreground mt-2">
-              {mode === "login" ? "Connectez-vous à votre compte" : "Créez votre compte gratuit"}
+              {mode === "login" ? {language === "fr" ? "Connectez-vous à votre compte" : language === "es" ? "Inicia sesión en tu cuenta" : "Sign in to your account"} : {language === "fr" ? "Créez votre compte gratuit" : language === "es" ? "Crea tu cuenta gratis" : "Create your free account"}}
             </p>
           </div>
 
@@ -68,7 +70,7 @@ export default function Home() {
               <div>
                 <label className="block text-sm font-medium text-foreground mb-2">Nom</label>
                 <Input
-                  placeholder="Tu nombre"
+                  placeholder={language === "fr" ? "Ton prénom" : language === "es" ? "Tu nombre" : "Your name"}
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                 />
@@ -88,7 +90,7 @@ export default function Home() {
               <div className="relative">
                 <Input
                   type={showPassword ? "text" : "password"}
-                  placeholder={mode === "register" ? "Mínimo 6 caracteres" : "Tu contraseña"}
+                  placeholder={mode === "register" ? {language === "fr" ? "Minimum 6 caractères" : language === "es" ? "Mínimo 6 caracteres" : "Minimum 6 characters"} : {language === "fr" ? "Ton mot de passe" : language === "es" ? "Tu contraseña" : "Your password"}}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   onKeyDown={(e) => {
@@ -118,21 +120,21 @@ export default function Home() {
             >
               {loginMutation.isPending || registerMutation.isPending ? (
                 <><Loader2 className="mr-2 h-5 w-5 animate-spin" />Cargando...</>
-              ) : mode === "login" ? "Iniciar sesión" : "Crear cuenta"}
+              ) : mode === "login" ? {language === "fr" ? "Se connecter" : language === "es" ? "Iniciar sesión" : "Sign in"} : {language === "fr" ? "Créer un compte" : language === "es" ? "Crear cuenta" : "Create account"}}
             </Button>
           </div>
 
           <div className="text-center space-y-2">
             {mode === "login" ? (
               <p className="text-sm text-muted-foreground">
-                ¿No tenés cuenta?{" "}
+                {language === "fr" ? "Pas encore de compte ?" : language === "es" ? "¿No tenés cuenta?" : "No account yet?"}{" "}
                 <button onClick={() => setMode("register")} className="text-primary font-semibold hover:underline">
                   Registrarse
                 </button>
               </p>
             ) : (
               <p className="text-sm text-muted-foreground">
-                ¿Ya tenés cuenta?{" "}
+                {language === "fr" ? "Déjà un compte ?" : language === "es" ? "¿Ya tenés cuenta?" : "Already have an account?"}{" "}
                 <button onClick={() => setMode("login")} className="text-primary font-semibold hover:underline">
                   Iniciar sesión
                 </button>
