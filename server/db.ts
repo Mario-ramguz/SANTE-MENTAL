@@ -1063,3 +1063,175 @@ export async function boostUserStreak(userId: number) {
     .set({ currentStreak: newStreak, maxStreak: newMax })
     .where(eq(streakData.userId, userId));
 }
+
+/**
+ * Auto-creates all tables if they don't exist.
+ * Called on server startup.
+ */
+export async function runAutoMigrate() {
+  const database = await getDb();
+  if (!database) {
+    console.warn("[DB] Skipping migration: no database connection");
+    return;
+  }
+
+  console.log("[DB] Running auto-migration...");
+  try {
+    // Users
+    await database.execute(`CREATE TABLE IF NOT EXISTS users (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      openId VARCHAR(255) NOT NULL UNIQUE,
+      name TEXT,
+      email VARCHAR(320),
+      loginMethod VARCHAR(64),
+      role ENUM('user','admin') DEFAULT 'user' NOT NULL,
+      createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+      updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL,
+      lastSignedIn TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+    )`);
+
+    await database.execute(`CREATE TABLE IF NOT EXISTS mood_entries (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      userId INT NOT NULL,
+      mood INT NOT NULL,
+      emotionTags JSON,
+      notes TEXT,
+      energyLevel INT DEFAULT 3,
+      stressLevel INT DEFAULT 3,
+      createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+    )`);
+
+    await database.execute(`CREATE TABLE IF NOT EXISTS journal_entries (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      userId INT NOT NULL,
+      title VARCHAR(255) NOT NULL,
+      content TEXT NOT NULL,
+      tags JSON,
+      rating INT DEFAULT 3,
+      createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+      updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL
+    )`);
+
+    await database.execute(`CREATE TABLE IF NOT EXISTS breathing_exercises (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      userId INT NOT NULL,
+      exerciseType VARCHAR(100) NOT NULL,
+      duration INT NOT NULL,
+      relaxationLevel INT DEFAULT 3,
+      createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+    )`);
+
+    await database.execute(`CREATE TABLE IF NOT EXISTS notifications (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      userId INT NOT NULL,
+      title VARCHAR(255) NOT NULL,
+      message TEXT,
+      type VARCHAR(50) DEFAULT 'info',
+      isRead INT DEFAULT 0,
+      createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+    )`);
+
+    await database.execute(`CREATE TABLE IF NOT EXISTS user_preferences (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      userId INT NOT NULL UNIQUE,
+      bio TEXT,
+      moodReminderTime VARCHAR(10) DEFAULT '09:00',
+      journalReminderTime VARCHAR(10) DEFAULT '20:00',
+      notificationsEnabled INT DEFAULT 1,
+      language VARCHAR(10) DEFAULT 'fr',
+      theme VARCHAR(20) DEFAULT 'light',
+      createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+      updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL
+    )`);
+
+    await database.execute(`CREATE TABLE IF NOT EXISTS chat_conversations (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      userId INT NOT NULL,
+      title VARCHAR(255),
+      createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+      updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL
+    )`);
+
+    await database.execute(`CREATE TABLE IF NOT EXISTS chat_messages (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      conversationId INT NOT NULL,
+      userId INT NOT NULL,
+      role VARCHAR(20) NOT NULL,
+      content TEXT NOT NULL,
+      createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+    )`);
+
+    await database.execute(`CREATE TABLE IF NOT EXISTS streak_data (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      userId INT NOT NULL UNIQUE,
+      currentStreak INT DEFAULT 0,
+      maxStreak INT DEFAULT 0,
+      lastCheckInDate TIMESTAMP,
+      createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+    )`);
+
+    await database.execute(`CREATE TABLE IF NOT EXISTS achievements (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      userId INT NOT NULL,
+      type VARCHAR(100) NOT NULL,
+      unlockedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+    )`);
+
+    await database.execute(`CREATE TABLE IF NOT EXISTS weekly_challenges (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      name VARCHAR(255) NOT NULL,
+      description TEXT,
+      objective VARCHAR(255),
+      icon VARCHAR(10),
+      rewardPoints INT DEFAULT 100,
+      weekStart DATE,
+      isActive INT DEFAULT 1,
+      createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+    )`);
+
+    await database.execute(`CREATE TABLE IF NOT EXISTS challenge_progress (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      userId INT NOT NULL,
+      challengeId INT NOT NULL,
+      progress FLOAT DEFAULT 0,
+      isCompleted INT DEFAULT 0,
+      completedAt TIMESTAMP,
+      createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+      updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL
+    )`);
+
+    await database.execute(`CREATE TABLE IF NOT EXISTS user_stats (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      userId INT NOT NULL UNIQUE,
+      totalPoints INT DEFAULT 0,
+      weeklyPoints INT DEFAULT 0,
+      totalMoodEntries INT DEFAULT 0,
+      totalJournalEntries INT DEFAULT 0,
+      totalBreathingExercises INT DEFAULT 0,
+      createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+      updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL
+    )`);
+
+    await database.execute(`CREATE TABLE IF NOT EXISTS rewards (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      name VARCHAR(100) NOT NULL,
+      description TEXT,
+      pointsCost INT NOT NULL,
+      icon VARCHAR(10),
+      category VARCHAR(50) DEFAULT 'other',
+      isAvailable INT DEFAULT 1,
+      createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+    )`);
+
+    await database.execute(`CREATE TABLE IF NOT EXISTS user_rewards (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      userId INT NOT NULL,
+      rewardId INT NOT NULL,
+      redeemedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+    )`);
+
+    console.log("[DB] Auto-migration complete ✓");
+  } catch (err) {
+    console.error("[DB] Migration error:", err);
+  }
+}
