@@ -1166,8 +1166,9 @@ export async function runAutoMigrate() {
       userId INT NOT NULL UNIQUE,
       currentStreak INT DEFAULT 0,
       maxStreak INT DEFAULT 0,
-      lastCheckInDate TIMESTAMP,
-      createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+      lastCheckInDate TIMESTAMP NULL,
+      createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+      updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL
     )`);
 
     await database.execute(`CREATE TABLE IF NOT EXISTS achievements (
@@ -1250,4 +1251,29 @@ export async function runAutoMigrate() {
   } catch (err) {
     console.error("[DB] Migration error:", err);
   }
+}
+
+/**
+ * Run ALTER TABLE fixes for existing tables missing columns.
+ * Safe to run multiple times - ignores errors if column already exists.
+ */
+export async function runAlterMigrations() {
+  const database = await getDb();
+  if (!database) return;
+
+  const alterStatements = [
+    `ALTER TABLE streak_data ADD COLUMN updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL`,
+    `ALTER TABLE user_stats ADD COLUMN globalRank INT DEFAULT NULL`,
+    `ALTER TABLE user_stats ADD COLUMN totalAchievements INT DEFAULT 0`,
+    `ALTER TABLE user_stats ADD COLUMN completedChallenges INT DEFAULT 0`,
+  ];
+
+  for (const sql of alterStatements) {
+    try {
+      await database.execute(sql);
+    } catch {
+      // Column already exists - ignore
+    }
+  }
+  console.log("[DB] Alter migrations done ✓");
 }

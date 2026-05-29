@@ -23,6 +23,11 @@ function translateReward(name: string, description: string | null | undefined, l
       es: { name: "Medalla Especial", description: "Obtén una medalla exclusiva en tu perfil" },
       en: { name: "Special Badge", description: "Get an exclusive badge on your profile" },
     },
+    medalla: {
+      fr: { name: "Médaille Spéciale", description: "Obtiens une médaille exclusive dans ton profil" },
+      es: { name: "Medalla Especial", description: "Obtén una medalla exclusiva en tu perfil" },
+      en: { name: "Special Badge", description: "Get an exclusive badge on your profile" },
+    },
     meditation: {
       fr: { name: "Méditation Guidée Premium", description: "Accès à 10 méditations guidées supplémentaires" },
       es: { name: "Meditación Guiada Premium", description: "Acceso a 10 meditaciones guiadas adicionales" },
@@ -39,7 +44,12 @@ function translateReward(name: string, description: string | null | undefined, l
       en: { name: "Personalized Avatar", description: "Customize your avatar with exclusive options" },
     },
     boost: {
-      fr: { name: "Boost de Racha", description: "Augmente ta racha de 7 jours" },
+      fr: { name: "Boost de Streak", description: "Augmente ta racha de 7 jours" },
+      es: { name: "Boost de Racha", description: "Aumenta tu racha en 7 días" },
+      en: { name: "Streak Boost", description: "Increase your streak by 7 days" },
+    },
+    racha: {
+      fr: { name: "Boost de Streak", description: "Augmente ta racha de 7 jours" },
       es: { name: "Boost de Racha", description: "Aumenta tu racha en 7 días" },
       en: { name: "Streak Boost", description: "Increase your streak by 7 days" },
     },
@@ -357,7 +367,12 @@ export default function RewardsShop() {
                           <div className="text-3xl md:text-4xl flex-shrink-0">{reward.icon}</div>
                           <div className="min-w-0">
                             <h3 className="font-bold text-base md:text-lg text-foreground truncate">{translated.name}</h3>
-                            <p className="text-xs md:text-sm text-muted-foreground capitalize">{reward.category}</p>
+                            <p className="text-xs md:text-sm text-muted-foreground capitalize">
+                          {reward.category === "feature" ? (language === "fr" ? "Fonctionnalité" : language === "en" ? "Feature" : "Funcionalidad") :
+                           reward.category === "badge" ? (language === "fr" ? "Médaille" : language === "en" ? "Badge" : "Medalla") :
+                           reward.category === "theme" ? (language === "fr" ? "Thème" : language === "en" ? "Theme" : "Tema") :
+                           reward.category}
+                        </p>
                           </div>
                         </div>
                         {redeemed && <CheckCircle2 className="w-5 md:w-6 h-5 md:h-6 text-green-500 flex-shrink-0 mt-1" />}
@@ -403,7 +418,7 @@ export default function RewardsShop() {
                             <div className="flex items-center gap-2">
                               <AlertCircle className="w-4 h-4 text-red-600 dark:text-red-400 flex-shrink-0" />
                               <p className="text-xs md:text-sm text-red-700 dark:text-red-300">
-                                {t("rewards.insufficient_points")} — te faltan {reward.pointsCost - (stats?.totalPoints || 0)} pts
+                                {t("rewards.insufficient_points")} — {language === "fr" ? "il vous manque" : language === "en" ? "you need" : "te faltan"} {reward.pointsCost - (stats?.totalPoints || 0)} pts
                               </p>
                             </div>
                           </div>
