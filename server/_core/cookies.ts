@@ -46,3 +46,13 @@ export function getSessionCookieOptions(
     secure: isSecureRequest(req),
   };
 }
+
+export function parseCookies(req: Request): Record<string, string> {
+  const cookieHeader = req.headers.cookie || "";
+  const cookies: Record<string, string> = {};
+  cookieHeader.split(";").forEach((part) => {
+    const [key, ...val] = part.trim().split("=");
+    if (key) cookies[key.trim()] = decodeURIComponent(val.join("="));
+  });
+  return cookies;
+}
