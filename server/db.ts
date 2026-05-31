@@ -1185,10 +1185,12 @@ export async function runAutoMigrate() {
       objective VARCHAR(255),
       icon VARCHAR(10),
       rewardPoints INT DEFAULT 100,
-      weekStart DATE,
+      weekStart DATE NULL,
       isActive INT DEFAULT 1,
       createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
     )`);
+    // Add weekEnd if missing (for Manus-created tables)
+    try { await database.execute('ALTER TABLE weekly_challenges ADD COLUMN weekEnd DATE NULL'); } catch {}
 
     await database.execute(`CREATE TABLE IF NOT EXISTS challenge_progress (
       id INT AUTO_INCREMENT PRIMARY KEY,
@@ -1239,11 +1241,11 @@ export async function runAutoMigrate() {
       if (existing.length === 0) {
         const now = new Date();
         await database.insert(weeklyChallenges).values([
-          { name: "7 jours de racha", description: "Completa tu check-in de humor durante 7 días consecutivos", objective: "7 jours de racha", icon: "🔥", rewardPoints: 100, weekStart: now, isActive: 1 },
-          { name: "Écrivain Dévoué", description: "Escribe 5 entradas en tu diario personal", objective: "5 entradas", icon: "✍️", rewardPoints: 75, weekStart: now, isActive: 1 },
-          { name: "Maître Respirateur", description: "Completa 7 ejercicios de respiración", objective: "7 ejercicios", icon: "🧘", rewardPoints: 80, weekStart: now, isActive: 1 },
-          { name: "Bavard IA", description: "Ten 5 conversaciones con el asistente IA", objective: "5 conversaciones", icon: "💬", rewardPoints: 60, weekStart: now, isActive: 1 },
-          { name: "30 jours de racha", description: "Mantén una racha de 30 días consecutivos", objective: "30 jours de racha", icon: "⭐", rewardPoints: 300, weekStart: now, isActive: 1 },
+          { name: "7 jours de racha", description: "Completa tu check-in de humor durante 7 días consecutivos", objective: "7 jours de racha", icon: "🔥", rewardPoints: 100, isActive: 1 },
+          { name: "Écrivain Dévoué", description: "Escribe 5 entradas en tu diario personal", objective: "5 entradas", icon: "✍️", rewardPoints: 75, isActive: 1 },
+          { name: "Maître Respirateur", description: "Completa 7 ejercicios de respiración", objective: "7 ejercicios", icon: "🧘", rewardPoints: 80, isActive: 1 },
+          { name: "Bavard IA", description: "Ten 5 conversaciones con el asistente IA", objective: "5 conversaciones", icon: "💬", rewardPoints: 60, isActive: 1 },
+          { name: "30 jours de racha", description: "Mantén una racha de 30 días consecutivos", objective: "30 jours de racha", icon: "⭐", rewardPoints: 300, isActive: 1 },
         ]);
         console.log("[DB] Weekly challenges seeded ✓");
       }

@@ -240,9 +240,8 @@ export const weeklyChallenges = mysqlTable("weekly_challenges", {
   // Recompensa en puntos
   rewardPoints: int("rewardPoints").default(50),
   // Semana de inicio (formato YYYY-W##)
-  weekStart: varchar("weekStart", { length: 10 }).notNull(),
+  weekStart: date("weekStart"),
   // Semana de fin
-  weekEnd: varchar("weekEnd", { length: 10 }).notNull(),
   // Activo o no
   isActive: int("isActive").default(1),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
