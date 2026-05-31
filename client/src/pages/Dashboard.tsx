@@ -25,13 +25,12 @@ export default function Dashboard() {
 
   const dateLocale = language === "fr" ? fr : language === "es" ? es : enUS;
 
-  const { data: moodEntries, isLoading: moodLoading } = trpc.mood.list.useQuery();
-  const { data: journalEntries, isLoading: journalLoading } = trpc.journal.list.useQuery();
-  const { data: breathingExercises, isLoading: breathingLoading } = trpc.breathing.list.useQuery();
-  const { data: notifications, isLoading: notificationsLoading } =
-    trpc.notifications.list.useQuery({ unreadOnly: true });
+  const { data: moodEntries } = trpc.mood.list.useQuery(undefined, { retry: false });
+  const { data: journalEntries } = trpc.journal.list.useQuery(undefined, { retry: false });
+  const { data: breathingExercises } = trpc.breathing.list.useQuery(undefined, { retry: false });
+  const { data: notifications } = trpc.notifications.list.useQuery({ unreadOnly: true }, { retry: false });
 
-  const isLoading = moodLoading || journalLoading || breathingLoading || notificationsLoading;
+  const isLoading = false;
 
   const todayMood = moodEntries?.[0];
   const todayDate = new Date().toDateString();

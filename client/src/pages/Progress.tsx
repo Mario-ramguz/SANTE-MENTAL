@@ -9,7 +9,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function Progress() {
   const { t, language } = useLanguage();
-  const { data: moodEntries, isLoading } = trpc.mood.list.useQuery();
+  const { data: moodEntries, isLoading } = trpc.mood.list.useQuery(undefined, { retry: false });
 
   const dateLocale = language === "fr" ? "fr-FR" : language === "es" ? "es-ES" : "en-US";
 

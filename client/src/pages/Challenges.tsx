@@ -18,12 +18,12 @@ function detectChallengeType(name: string, objective: string): string {
 // Translation maps for challenge names/descriptions/objectives per type
 const challengeTranslations: Record<string, Record<string, { name: string; description: string; objective: string }>> = {
   streak7: {
-    fr: { name: "7 Jours Sans Faillir", description: "Maintenez votre routine pendant 7 jours consécutifs.", objective: "7 jours de racha" },
+    fr: { name: "7 Jours Sans Faillir", description: "Maintenez votre routine pendant 7 jours consécutifs.", objective: "7 jours de streak" },
     es: { name: "7 Días Sin Faltar", description: "Mantén tu rutina durante 7 días consecutivos.", objective: "7 días de racha" },
     en: { name: "7 Days Straight", description: "Keep your routine going for 7 consecutive days.", objective: "7 day streak" },
   },
   streak30: {
-    fr: { name: "Racha Dorée", description: "Atteignez une racha de 30 jours consécutifs.", objective: "30 jours de racha" },
+    fr: { name: "Streak Dorée", description: "Atteignez un streak de 30 jours consécutifs.", objective: "30 jours de streak" },
     es: { name: "Racha Dorada", description: "Alcanza una racha de 30 días consecutivos.", objective: "30 días de racha" },
     en: { name: "Golden Streak", description: "Reach a 30-day consecutive streak.", objective: "30 day streak" },
   },
@@ -51,8 +51,8 @@ const challengeTranslations: Record<string, Record<string, { name: string; descr
 
 export default function Challenges() {
   const { t, language } = useLanguage();
-  const { data: challenges, isLoading } = trpc.challenges.list.useQuery();
-  const { data: userProgress } = trpc.challenges.getUserProgress.useQuery();
+  const { data: challenges, isLoading } = trpc.challenges.list.useQuery(undefined, { retry: false });
+  const { data: userProgress } = trpc.challenges.getUserProgress.useQuery(undefined, { retry: false });
 
   const getChallengeProgress = (challengeId: number) =>
     userProgress?.find((p) => p.challengeId === challengeId);

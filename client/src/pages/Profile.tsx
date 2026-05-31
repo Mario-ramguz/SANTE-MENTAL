@@ -14,7 +14,7 @@ export default function Profile() {
   const { t } = useLanguage();
   const { profileEmoji, hasReward } = useRewards();
   const { user, logout } = useAuth();
-  const { data: preferences, isLoading } = trpc.preferences.get.useQuery();
+  const { data: preferences, isLoading } = trpc.preferences.get.useQuery(undefined, { retry: false });
   const updateMutation = trpc.preferences.update.useMutation();
   const logoutMutation = trpc.auth.logout.useMutation();
 

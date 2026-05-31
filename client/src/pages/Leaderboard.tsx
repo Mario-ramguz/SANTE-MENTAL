@@ -6,7 +6,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function Leaderboard() {
   const { t } = useLanguage();
-  const { data: leaderboard, isLoading } = trpc.leaderboard.global.useQuery();
+  const { data: leaderboard, isLoading } = trpc.leaderboard.global.useQuery(undefined, { retry: false });
 
   const getMedalIcon = (rank: number) => {
     switch (rank) {

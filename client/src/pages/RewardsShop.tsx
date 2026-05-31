@@ -44,12 +44,12 @@ function translateReward(name: string, description: string | null | undefined, l
       en: { name: "Personalized Avatar", description: "Customize your avatar with exclusive options" },
     },
     boost: {
-      fr: { name: "Boost de Streak", description: "Augmente ta racha de 7 jours" },
+      fr: { name: "Boost de Streak", description: "Augmente ton streak de 7 jours" },
       es: { name: "Boost de Racha", description: "Aumenta tu racha en 7 días" },
       en: { name: "Streak Boost", description: "Increase your streak by 7 days" },
     },
     racha: {
-      fr: { name: "Boost de Streak", description: "Augmente ta racha de 7 jours" },
+      fr: { name: "Boost de Streak", description: "Augmente ton streak de 7 jours" },
       es: { name: "Boost de Racha", description: "Aumenta tu racha en 7 días" },
       en: { name: "Streak Boost", description: "Increase your streak by 7 days" },
     },

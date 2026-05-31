@@ -1268,6 +1268,13 @@ export async function runAlterMigrations() {
     `ALTER TABLE user_stats ADD COLUMN globalRank INT DEFAULT NULL`,
     `ALTER TABLE user_stats ADD COLUMN totalAchievements INT DEFAULT 0`,
     `ALTER TABLE user_stats ADD COLUMN completedChallenges INT DEFAULT 0`,
+    `ALTER TABLE achievements ADD COLUMN badgeType VARCHAR(100) DEFAULT 'general'`,
+    `ALTER TABLE achievements ADD COLUMN name VARCHAR(255) DEFAULT ''`,
+    `ALTER TABLE achievements ADD COLUMN description TEXT`,
+    `ALTER TABLE achievements ADD COLUMN icon VARCHAR(10) DEFAULT '🏅'`,
+    `ALTER TABLE user_rewards ADD COLUMN pointsSpent INT DEFAULT 0`,
+    `ALTER TABLE user_preferences ADD COLUMN avatarUrl VARCHAR(500) DEFAULT NULL`,
+    `ALTER TABLE mood_entries ADD COLUMN updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL`,
   ];
 
   for (const sql of alterStatements) {
