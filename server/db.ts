@@ -1094,8 +1094,8 @@ export async function runAutoMigrate() {
       id INT AUTO_INCREMENT PRIMARY KEY,
       userId INT NOT NULL,
       mood INT NOT NULL,
-      emotionTags JSON,
-      notes TEXT,
+      emotionTags TEXT CHARACTER SET utf8mb4,
+      notes TEXT CHARACTER SET utf8mb4,
       energyLevel INT DEFAULT 3,
       stressLevel INT DEFAULT 3,
       createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
@@ -1145,7 +1145,7 @@ export async function runAutoMigrate() {
     )`);
 
     await database.execute(`CREATE TABLE IF NOT EXISTS chat_conversations (
-      id INT AUTO_INCREMENT PRIMARY KEY,
+      id VARCHAR(64) PRIMARY KEY,
       userId INT NOT NULL,
       title VARCHAR(255),
       createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
@@ -1154,7 +1154,7 @@ export async function runAutoMigrate() {
 
     await database.execute(`CREATE TABLE IF NOT EXISTS chat_messages (
       id INT AUTO_INCREMENT PRIMARY KEY,
-      conversationId INT NOT NULL,
+      conversationId VARCHAR(64) NOT NULL,
       userId INT NOT NULL,
       role VARCHAR(20) NOT NULL,
       content TEXT NOT NULL,
@@ -1275,6 +1275,12 @@ export async function runAlterMigrations() {
     `ALTER TABLE user_rewards ADD COLUMN pointsSpent INT DEFAULT 0`,
     `ALTER TABLE user_preferences ADD COLUMN avatarUrl VARCHAR(500) DEFAULT NULL`,
     `ALTER TABLE mood_entries ADD COLUMN updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL`,
+    `ALTER TABLE mood_entries MODIFY COLUMN emotionTags TEXT CHARACTER SET utf8mb4`,
+    `ALTER TABLE journal_entries ADD COLUMN privacy VARCHAR(20) DEFAULT 'private'`,
+    `ALTER TABLE breathing_exercises ADD COLUMN notes TEXT`,
+    `ALTER TABLE breathing_exercises ADD COLUMN completedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP`,
+    `ALTER TABLE notifications ADD COLUMN type VARCHAR(50) DEFAULT 'info'`,
+    `ALTER TABLE notifications ADD COLUMN scheduledAt TIMESTAMP NULL`,
   ];
 
   for (const sql of alterStatements) {
