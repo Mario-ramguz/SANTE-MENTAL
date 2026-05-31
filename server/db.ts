@@ -1276,14 +1276,44 @@ export async function runAlterMigrations() {
     `ALTER TABLE user_preferences ADD COLUMN avatarUrl VARCHAR(500) DEFAULT NULL`,
     `ALTER TABLE mood_entries ADD COLUMN updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL`,
     `ALTER TABLE mood_entries MODIFY COLUMN emotionTags TEXT CHARACTER SET utf8mb4`,
+    `ALTER TABLE journal_entries MODIFY COLUMN tags TEXT CHARACTER SET utf8mb4`,
+  ];
+
+  // Fix chat_conversations id type - requires recreate
+  try {
+    const cols = await database.execute("SHOW COLUMNS FROM chat_conversations LIKE 'id'") as any;
+    const rows = Array.isArray(cols) ? cols[0] : [];
+    const idType = rows[0]?.Type || '';
+    if (idType.toLowerCase().includes('int')) {
+      // Recreate table with VARCHAR id
+      await database.execute('DROP TABLE IF EXISTS chat_messages');
+      await database.execute('DROP TABLE IF EXISTS chat_conversations');
+      await database.execute(`CREATE TABLE chat_conversations (
+        id VARCHAR(64) PRIMARY KEY,
+        userId INT NOT NULL,
+        title VARCHAR(255),
+        createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+        updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL
+      )`);
+      await database.execute(`CREATE TABLE chat_messages (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        conversationId VARCHAR(64) NOT NULL,
+        userId INT NOT NULL,
+        role VARCHAR(20) NOT NULL,
+        content TEXT CHARACTER SET utf8mb4 NOT NULL,
+        createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+      )`);
+      console.log("[DB] chat_conversations recreated with VARCHAR id ✓");
+    }
+  } catch(e) { console.warn("[DB] chat fix skipped:", e); }
+
+  for (const sql of [...alterStatements,
     `ALTER TABLE journal_entries ADD COLUMN privacy VARCHAR(20) DEFAULT 'private'`,
     `ALTER TABLE breathing_exercises ADD COLUMN notes TEXT`,
     `ALTER TABLE breathing_exercises ADD COLUMN completedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP`,
     `ALTER TABLE notifications ADD COLUMN type VARCHAR(50) DEFAULT 'info'`,
     `ALTER TABLE notifications ADD COLUMN scheduledAt TIMESTAMP NULL`,
-  ];
-
-  for (const sql of alterStatements) {
+  ]) {
     try {
       await database.execute(sql);
     } catch {
