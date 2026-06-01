@@ -1,7 +1,6 @@
 [build]
-builder = "nixpacks"
-installCommand = "npm install -g corepack@0.24.1 && corepack enable && pnpm install --no-frozen-lockfile"
-buildCommand = "pnpm run build"
+builder = "railpack"
+buildCommand = "pnpm install --no-frozen-lockfile && pnpm run build"
 
 [deploy]
 startCommand = "pnpm run start"
