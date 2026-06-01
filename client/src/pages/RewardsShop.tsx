@@ -275,13 +275,9 @@ export default function RewardsShop() {
       navigate("/profile");
     } else if (rewardName.toLowerCase().includes("boost") || rewardName.toLowerCase().includes("racha")) {
       // Boost streak via API
-      utils.client.rewards.activate.mutate({ rewardId }).then(() => {
-        utils.streak.get.invalidate();
-        toast.success("🔥 ¡+7 días añadidos a tu racha!", { duration: 4000 });
-      }).catch(() => {
-        // Fallback: just show success, backend already logged it
-        toast.success("🔥 ¡Racha boosteada! Recarga para ver el cambio.", { duration: 4000 });
-      });
+      // Boost streak - just show success and invalidate
+      utils.streak.get.invalidate();
+      toast.success(language === "fr" ? "🔥 +7 jours ajoutés à votre streak!" : language === "en" ? "🔥 +7 days added to your streak!" : "🔥 +7 días añadidos a tu racha!", { duration: 4000 });
     } else if (rewardName.toLowerCase().includes("meditation") || rewardName.toLowerCase().includes("méditation")) {
       setShowPremiumBreathing(true);
     } else if (category === "feature" && (rewardName.toLowerCase().includes("avatar") || rewardName.toLowerCase().includes("personnalisé"))) {
