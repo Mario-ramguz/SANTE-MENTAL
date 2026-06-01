@@ -10,7 +10,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function ExportProgress() {
   const { user } = useAuth();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [isExporting, setIsExporting] = useState(false);
   const { data: stats } = trpc.stats.get.useQuery();
   const { data: moodEntries } = trpc.mood.list.useQuery();
@@ -26,7 +26,7 @@ export default function ExportProgress() {
         <html>
         <head>
           <meta charset="UTF-8">
-          <title>Reporte de Progreso - Sérénité</title>
+          <title>${language === "fr" ? "Rapport de Progrès" : language === "en" ? "Progress Report" : "Reporte de Progreso"} - Sérénité</title>
           <style>
             body {
               font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -142,33 +142,33 @@ export default function ExportProgress() {
         </head>
         <body>
           <div class="header">
-            <h1>📊 Reporte de Progreso</h1>
+            <h1>📊 ${language === "fr" ? "Rapport de Progrès" : language === "en" ? "Progress Report" : "Reporte de Progreso"}</h1>
             <p>Sérénité - Tu Aplicación de Salud Mental</p>
           </div>
 
           <div class="user-info">
-            <p><strong>Usuario:</strong> ${user?.name || 'Usuario'}</p>
-            <p><strong>Email:</strong> ${user?.email || 'N/A'}</p>
-            <p><strong>Fecha de Reporte:</strong> ${new Date().toLocaleDateString('es-ES')}</p>
+            <p><strong>${language === "fr" ? "Utilisateur" : language === "en" ? "User" : "Usuario"}:</strong> ${user?.name || "Usuario"}</p>
+            <p><strong>Email:</strong> ${user?.email || "N/A"}</p>
+            <p><strong>${language === "fr" ? "Date du Rapport" : language === "en" ? "Report Date" : "Fecha de Reporte"}:</strong> ${new Date().toLocaleDateString(language === "fr" ? "fr-FR" : language === "en" ? "en-US" : "es-ES")}</p>
           </div>
 
           <div class="section">
-            <div class="section-title">📈 Estadísticas Generales</div>
+            <div class="section-title">📈 ${language === "fr" ? "Statistiques Générales" : language === "en" ? "General Statistics" : "Estadísticas Generales"}</div>
             <div class="stats-grid">
               <div class="stat-card">
-                <div class="stat-label">Puntos Totales</div>
+                <div class="stat-label">${language === "fr" ? "Points Totaux" : language === "en" ? "Total Points" : "Puntos Totales"}</div>
                 <div class="stat-value">${stats?.totalPoints || 0}</div>
               </div>
               <div class="stat-card">
-                <div class="stat-label">Medallas Desbloqueadas</div>
+                <div class="stat-label">${language === "fr" ? "Médailles Déverrouillées" : language === "en" ? "Unlocked Badges" : "Medallas Desbloqueadas"}</div>
                 <div class="stat-value">${stats?.totalAchievements || 0}</div>
               </div>
               <div class="stat-card">
-                <div class="stat-label">Desafíos Completados</div>
+                <div class="stat-label">${language === "fr" ? "Défis Complétés" : language === "en" ? "Completed Challenges" : "Desafíos Completados"}</div>
                 <div class="stat-value">${stats?.completedChallenges || 0}</div>
               </div>
               <div class="stat-card">
-                <div class="stat-label">Entradas de Diario</div>
+                <div class="stat-label">${language === "fr" ? "Entrées de Journal" : language === "en" ? "Journal Entries" : "Entradas de Diario"}</div>
                 <div class="stat-value">${stats?.totalJournalEntries || 0}</div>
               </div>
             </div>
@@ -176,7 +176,7 @@ export default function ExportProgress() {
 
           ${achievements && achievements.length > 0 ? `
           <div class="section">
-            <div class="section-title">🏆 Medallas Desbloqueadas</div>
+            <div class="section-title">🏆 ${language === "fr" ? "Médailles Déverrouillées" : language === "en" ? "Unlocked Badges" : "Medallas Desbloqueadas"}</div>
             <div class="achievement-list">
               ${achievements.map((a: any) => `
                 <div class="achievement-item">
@@ -190,14 +190,14 @@ export default function ExportProgress() {
 
           ${moodEntries && moodEntries.length > 0 ? `
           <div class="section">
-            <div class="section-title">😊 Últimas Entradas de Humor</div>
+            <div class="section-title">😊 ${language === "fr" ? "Dernières Entrées d'Humeur" : language === "en" ? "Latest Mood Entries" : "Últimas Entradas de Humor"}</div>
             <table>
               <thead>
                 <tr>
-                  <th>Fecha</th>
-                  <th>Humor</th>
-                  <th>Energía</th>
-                  <th>Estrés</th>
+                  <th>${language === "fr" ? "Date" : "Date"}</th>
+                  <th>${language === "fr" ? "Humeur" : language === "en" ? "Mood" : "Humor"}</th>
+                  <th>${language === "fr" ? "Énergie" : language === "en" ? "Energy" : "Energía"}</th>
+                  <th>${language === "fr" ? "Stress" : language === "en" ? "Stress" : "Estrés"}</th>
                 </tr>
               </thead>
               <tbody>
@@ -215,7 +215,7 @@ export default function ExportProgress() {
           ` : ''}
 
           <div class="footer">
-            <p>Este reporte fue generado automáticamente por Sérénité</p>
+            <p>${language === "fr" ? "Ce rapport a été généré automatiquement par Sérénité" : language === "en" ? "This report was automatically generated by Sérénité" : "Este reporte fue generado automáticamente por Sérénité"}</p>
             <p>© 2026 Sérénité - Aplicación de Salud Mental</p>
           </div>
         </body>
