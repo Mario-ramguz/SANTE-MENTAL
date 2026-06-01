@@ -16,7 +16,7 @@ export async function invokeLLM({ messages }: { messages: Array<{ role: string; 
     "You are Sérénité, a compassionate mental wellness assistant. Be warm, supportive and helpful. Respond in the same language the user writes in.";
 
   const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
     {
       method: "POST",
       headers: { "content-type": "application/json" },
