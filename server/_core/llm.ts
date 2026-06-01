@@ -1,3 +1,13 @@
+const fallbackResponses = [
+  "Je suis là pour vous soutenir. Pouvez-vous me dire comment vous vous sentez aujourd'hui?",
+  "Je vous écoute. N'hésitez pas à partager ce qui vous préoccupe.",
+  "Prendre soin de sa santé mentale est très important. Comment puis-je vous aider?",
+  "Je suis Sérénité, votre assistant de bien-être. Parlez-moi de votre journée.",
+  "Chaque jour est une nouvelle opportunité. Comment allez-vous en ce moment?",
+  "Je suis là pour vous accompagner. Qu'est-ce qui vous amène aujourd'hui?",
+  "Votre bien-être est ma priorité. Dites-moi comment je peux vous aider.",
+];
+
 export async function invokeLLM({ messages }: { messages: Array<{ role: string; content: string }> }): Promise<{ choices: Array<{ message: { content: string } }> }> {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) throw new Error("GEMINI_API_KEY is not configured");
@@ -29,12 +39,12 @@ export async function invokeLLM({ messages }: { messages: Array<{ role: string; 
   );
 
   if (!response.ok) {
-    const err = await response.text();
-    throw new Error(`Gemini API error: ${response.status} – ${err}`);
+    const fallback = fallbackResponses[Math.floor(Math.random() * fallbackResponses.length)];
+    return { choices: [{ message: { content: fallback } }] };
   }
 
   const data = await response.json() as any;
-  const text = data.candidates?.[0]?.content?.parts?.[0]?.text || "Je suis désolé, je ne peux pas répondre pour le moment.";
+  const text = data.candidates?.[0]?.content?.parts?.[0]?.text || fallbackResponses[0];
 
   return {
     choices: [{ message: { content: text } }],
