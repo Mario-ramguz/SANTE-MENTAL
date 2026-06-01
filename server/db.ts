@@ -559,13 +559,23 @@ export async function deleteAllConversations(userId: number) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
 
-  const conversations = await getUserConversations(userId);
-  
-  for (const conv of conversations) {
-    await deleteConversation(conv.id, userId);
+  try {
+    // Delete messages first, then conversations directly by userId
+    const convs = await db.select({ id: chatConversations.id })
+      .from(chatConversations)
+      .where(eq(chatConversations.userId, userId));
+    
+    for (const conv of convs) {
+      await db.delete(chatMessages).where(eq(chatMessages.conversationId, conv.id));
+    }
+    await db.delete(chatConversations).where(eq(chatConversations.userId, userId));
+    return { deleted: convs.length };
+  } catch {
+    // Fallback: try raw SQL
+    await db.execute(`DELETE cm FROM chat_messages cm INNER JOIN chat_conversations cc ON cm.conversationId = cc.id WHERE cc.userId = ${userId}`);
+    await db.execute(`DELETE FROM chat_conversations WHERE userId = ${userId}`);
+    return { deleted: 0 };
   }
-
-  return { deleted: conversations.length };
 }
 
 
