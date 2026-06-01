@@ -55,8 +55,7 @@ export default function Chat() {
           <p className="text-muted-foreground mt-2">{t("chat.description")}</p>
         </div>
 
-        {history && history.length > 0 && (
-          <div className="relative">
+        <div className="relative">
             <Button
               variant="outline" size="sm"
               onClick={() => setShowDeleteConfirm(true)}
@@ -82,8 +81,7 @@ export default function Chat() {
                 </div>
               </Card>
             )}
-          </div>
-        )}
+        </div>
       </div>
 
       <Card className="flex-1 p-6 flex flex-col overflow-hidden">
