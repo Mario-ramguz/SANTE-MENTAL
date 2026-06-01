@@ -15,6 +15,7 @@ export default function MoodTracker() {
   const [energyLevel, setEnergyLevel] = useState(3);
   const [stressLevel, setStressLevel] = useState(3);
 
+  const utils = trpc.useUtils();
   const createMoodMutation = trpc.mood.create.useMutation();
 
   const moods = [
@@ -44,13 +45,16 @@ export default function MoodTracker() {
       return;
     }
     try {
-      await createMoodMutation.mutateAsync({
+      const result = await createMoodMutation.mutateAsync({
         mood: selectedMood,
         emotionTags: selectedEmotions,
         notes,
         energyLevel,
         stressLevel,
       });
+      utils.mood.list.invalidate();
+      utils.stats.get.invalidate();
+      utils.streak.get.invalidate();
       toast.success(t("mood.saved"));
       setSelectedMood(null);
       setSelectedEmotions([]);

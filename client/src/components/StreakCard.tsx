@@ -64,7 +64,7 @@ export function StreakCard() {
           <div>
             <p className="text-sm text-muted-foreground">{t('dashboard.streak')}</p>
             <p className="text-2xl font-bold text-orange-500">{currentStreak}</p>
-            <p className="text-xs text-muted-foreground">{t('dashboard.days')}{currentStreak !== 1 ? 's' : ''}</p>
+            <p className="text-xs text-muted-foreground">{t('dashboard.days')}</p>
           </div>
           {achievements && achievements.length > 0 && (
             <div className="ml-4 flex items-center gap-2 pl-4 border-l border-orange-500/30">
